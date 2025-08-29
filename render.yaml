@@ -16,14 +16,12 @@ services:
         value: google/gemini-2.5-flash-image-preview:free
       - key: OPENROUTER_API_URL
         value: https://openrouter.ai/api/v1/chat/completions
-      - key: PORT
-        value: 8080
 
   # Frontend
   - type: web
     name: usc-ai-frontend
     env: static
-    buildCommand: npm install --legacy-peer-deps && npm run build
+    buildCommand: npm install && npm run build
     staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
