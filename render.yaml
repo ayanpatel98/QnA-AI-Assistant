@@ -10,8 +10,6 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: OPENROUTER_API_KEY
-        value: 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
       - key: OPENROUTER_MODEL
         value: google/gemini-2.5-flash-image-preview:free
       - key: OPENROUTER_API_URL
@@ -25,7 +23,4 @@ services:
     staticPublishPath: ./build
     envVars:
       - key: REACT_APP_API_URL
-        fromService:
-          type: web
-          name: usc-ai-backend
-          property: host
+        value: https://usc-ai-backend-tfim.onrender.com
