@@ -72,7 +72,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userProfile }) => {
 
         setMessages(prev => [...prev, aiMessage]);
       } else {
-        throw new Error('Failed to get AI response');
+        const result: any = await response.json();
+        throw new Error(result.message);
       }
     } catch (error) {
       console.error('Chat error:', error);

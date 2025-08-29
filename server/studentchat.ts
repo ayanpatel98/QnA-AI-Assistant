@@ -1,4 +1,5 @@
 import express from 'express';
+import dotenv from 'dotenv';
 import { 
   StudentProfile, 
   OpenRouterMessage, 
@@ -7,6 +8,9 @@ import {
   ChatResponse,
   PluginConfig 
 } from './models/types';
+
+// environment variables from .env file
+dotenv.config();
 
 // OpenRouter.ai configurations
 const OPENROUTER_API_KEY: string = process.env.OPENROUTER_API_KEY || '';
@@ -69,6 +73,13 @@ export function setupStudentRoutes(app: express.Application) {
       // Generate AI response using OpenRouter.ai
       const response = await generateUSCResponse(message, userProfile, useWebSearch);
       
+      if(response.startsWith('Error:')){
+        return res.status(500).json({
+          success: false,
+          message: response
+        });
+      }
+
       const chatResponse: ChatResponse = {
         success: true,
         response: response,
@@ -201,8 +212,8 @@ export async function generateUSCResponse(question: string, profile: StudentProf
     });
 
     if (!openRouterResponse.ok) {
-      const errorText = await openRouterResponse.text();
-      throw new Error(`OpenRouter API error: ${openRouterResponse.status}`);
+      const errorText = await openRouterResponse.json();
+      throw new Error(errorText.error.message);
     }
 
     const result = await openRouterResponse.json();
@@ -217,6 +228,6 @@ export async function generateUSCResponse(question: string, profile: StudentProf
 
   } catch (error) {
     // a fallback to response if llm response fails
-    return `Error generating USC response`;
+    return `${error}`;
   }
 }
