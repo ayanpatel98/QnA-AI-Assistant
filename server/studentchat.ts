@@ -1,7 +1,17 @@
 import express from 'express';
+import { 
+  StudentProfile, 
+  OpenRouterMessage, 
+  OpenRouterPayload, 
+  ProfileUploadResponse, 
+  ChatResponse,
+  PluginConfig 
+} from './models/types';
 
-// OpenRouter.ai configuration
-const OPENROUTER_API_KEY = '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';
+// OpenRouter.ai configurations
+const OPENROUTER_API_KEY: string = process.env.OPENROUTER_API_KEY || '';
+const OPENROUTER_MODEL: string = process.env.OPENROUTER_MODEL || 'deepseek/deepseek-r1:free';
+const OPENROUTER_API_URL: string = process.env.OPENROUTER_API_URL || 'https://openrouter.ai/api/v1/chat/completions';
 
 // API route handlers
 export function setupStudentRoutes(app: express.Application) {
@@ -18,7 +28,7 @@ export function setupStudentRoutes(app: express.Application) {
           });
         }
         
-        // Validate file type by filename
+        // Is the file pdf?
         if (!resume.filename.toLowerCase().endsWith('.pdf')) {
           return res.status(400).json({
             success: false,
@@ -35,24 +45,20 @@ export function setupStudentRoutes(app: express.Application) {
         interests: interests || null,
         uploadedAt: new Date().toISOString()
       };
-
-      console.log('Profile uploaded:', { 
-        ...profileData, 
-        resume: profileData.resume ? 'Base64 PDF data' : null 
-      });
       
-      res.json({
+      const response: ProfileUploadResponse = {
         success: true,
         message: 'Profile uploaded successfully',
         profile: profileData
-      });
+      };
+      res.json(response);
       
     } catch (error) {
-      console.error('Upload error:', error);
-      res.status(500).json({ 
+      const errorResponse: ProfileUploadResponse = {
         success: false, 
-        message: 'Failed to upload profile' 
-      });
+        message: 'Failed to upload profile'
+      };
+      res.status(500).json(errorResponse);
     }
   });
 
@@ -63,23 +69,24 @@ export function setupStudentRoutes(app: express.Application) {
       // Generate AI response using OpenRouter.ai
       const response = await generateUSCResponse(message, userProfile, useWebSearch);
       
-      res.json({
+      const chatResponse: ChatResponse = {
         success: true,
         response: response,
         timestamp: new Date().toISOString()
-      });
+      };
+      res.json(chatResponse);
     } catch (error) {
-      console.error('Chat error:', error);
-      res.status(500).json({
+      const errorResponse: ChatResponse = {
         success: false,
         message: 'Failed to process chat message'
-      });
+      };
+      res.status(500).json(errorResponse);
     }
   });
 }
 
 // build usc context system prompt
-function buildSystemPrompt(profile: any, useWebSearch: boolean): string {
+function buildSystemPrompt(profile: StudentProfile, useWebSearch: boolean): string {
   return `You are a helpful AI assistant for the University of Southern California (USC). You provide accurate, helpful information about USC based on the university context provided. 
 
 USC University Context:
@@ -110,7 +117,7 @@ IMPORTANT: Only provide information about University of Southern California base
 }
 
 // build user message which has profile details
-function buildUserMessage(question: string, profile: any, useWebSearch: boolean): string {
+function buildUserMessage(question: string, profile: StudentProfile): string {
   return `Student Question: ${question}
 
 ${profile?.resume ? 'The student has uploaded a resume for context.' : 'No resume uploaded.'}
@@ -118,13 +125,13 @@ ${profile?.linkedinUrl ? `Student LinkedIn profile: ${profile.linkedinUrl}` : 'N
 ${profile?.interests ? `Student interests: ${profile.interests}` : ''}
 ${profile?.currentEducation ? `Current education level: ${profile.currentEducation}` : ''}
 
-Please provide a helpful, accurate response about USC based on the university context provided${useWebSearch ? '. Use web search to find the most current USC information, admission requirements, deadlines, and program details to enhance your response' : ''}. ${profile?.linkedinUrl ? 'You can reference the LinkedIn profile to understand the student\'s professional background and experience.' : ''}`;
+Please provide a helpful, accurate response about University of Southern California based on the university context provided`;
 }
 
 // Helper function to prepare API request payload
-function prepareRequestPayload(systemPrompt: string, userMessage: string, profile: any, useWebSearch: boolean): any {
-  const requestPayload: any = {
-    model: `deepseek/deepseek-r1:free`,
+function prepareRequestPayload(systemPrompt: string, userMessage: string, profile: StudentProfile, useWebSearch: boolean): OpenRouterPayload {
+  const requestPayload: OpenRouterPayload = {
+    model: OPENROUTER_MODEL,
     messages: [
       { role: "system", content: systemPrompt },
       { role: "user", content: userMessage }
@@ -133,7 +140,7 @@ function prepareRequestPayload(systemPrompt: string, userMessage: string, profil
   };
 
   // add plugins based on features needed Like pdf and web,search.
-  const plugins = [];
+  const plugins: PluginConfig[] = [];
   
   // PDF processing plugin if resume is present
   if (profile?.resume?.base64) {
@@ -176,15 +183,15 @@ function prepareRequestPayload(systemPrompt: string, userMessage: string, profil
   return requestPayload;
 }
 
-async function generateUSCResponse(question: string, profile: any, useWebSearch: boolean): Promise<string> {
+export async function generateUSCResponse(question: string, profile: StudentProfile, useWebSearch: boolean): Promise<string> {
   try {
     // Build prompts and payload using helper functions
     const systemPrompt = buildSystemPrompt(profile, useWebSearch);
-    const userMessage = buildUserMessage(question, profile, useWebSearch);
+    const userMessage = buildUserMessage(question, profile);
     const requestPayload = prepareRequestPayload(systemPrompt, userMessage, profile, useWebSearch);
 
     // Make request to OpenRouter.ai
-    const openRouterResponse = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+    const openRouterResponse = await fetch(OPENROUTER_API_URL, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
@@ -195,7 +202,6 @@ async function generateUSCResponse(question: string, profile: any, useWebSearch:
 
     if (!openRouterResponse.ok) {
       const errorText = await openRouterResponse.text();
-      console.error(`OpenRouter error: ${errorText}`);
       throw new Error(`OpenRouter API error: ${openRouterResponse.status}`);
     }
 
@@ -210,9 +216,7 @@ async function generateUSCResponse(question: string, profile: any, useWebSearch:
     return finalResponse;
 
   } catch (error) {
-    console.error('Error generating USC response:', error);
-    
-    // Fallback to basic response if AI fails
+    // a fallback to response if llm response fails
     return `Error generating USC response`;
   }
 }

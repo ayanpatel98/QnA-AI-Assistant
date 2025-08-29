@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import ChatInterface from './components/ChatInterface';
 import ProfileUpload from './components/ProfileUpload';
-
-type TabType = 'chat' | 'profile';
+import { StudentProfile, TabType } from './models/chat-modal';
 
 function App() {
   const [activeTab, setActiveTab] = useState<TabType>('profile');
-  const [userProfile, setUserProfile] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<StudentProfile | null>(null);
 
   return (
     <div className="container-fluid vh-100 d-flex flex-column">

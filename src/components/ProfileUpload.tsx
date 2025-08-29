@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import { StudentProfile, UploadResponse, ProfileUploadProps, EducationLevel } from '../models/chat-modal';
 
-interface ProfileUploadProps {
-  userProfile: any;
-  setUserProfile: (profile: any) => void;
-}
+// API Configuration from environment variables
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 
 const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfile }) => {
   const [loading, setLoading] = useState(false);
@@ -12,7 +12,7 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
-  const [currentEducation, setCurrentEducation] = useState('');
+  const [currentEducation, setCurrentEducation] = useState<EducationLevel | ''>('');
   const [interests, setInterests] = useState('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,7 +69,7 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
         resume: resumeData
       };
 
-      const response = await fetch('http://localhost:8080/api/upload-profile', {
+      const response = await fetch(`${API_URL}/api/upload-profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
       });
 
       if (response.ok) {
-        const result = await response.json();
+        const result: UploadResponse = await response.json();
         setUserProfile(result.profile);
         setSuccess('Profile uploaded successfully!');
         
@@ -133,7 +133,8 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
               <select
                 className="form-select"
                 value={currentEducation}
-                onChange={(e) => setCurrentEducation(e.target.value)}
+                onChange={(e) => setCurrentEducation(e.target.value as EducationLevel | '')}
+
               >
                 <option value="">Select level</option>
                 <option value="high_school">High School</option>

@@ -1,15 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Message, StudentProfile, ChatResponse, ChatInterfaceProps } from '../models/chat-modal';
 
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-  timestamp: Date;
-}
-
-interface ChatInterfaceProps {
-  userProfile: any;
-}
+// API Configuration from environment variables
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ userProfile }) => {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -55,7 +48,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userProfile }) => {
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8080/api/chat', {
+      const response = await fetch(`${API_URL}/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +61,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ userProfile }) => {
       });
 
       if (response.ok) {
-        const result = await response.json();
+        const result: ChatResponse = await response.json();
         
         const aiMessage: Message = {
           id: (Date.now() + 1).toString(),
