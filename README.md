@@ -54,7 +54,7 @@ npm run dev
 
 **AI API Selection:** Because OpenRouter.ai provides access to multiple models through a single API, including free tiers, I chose it over OpenAI or other providers. This lowers development costs and allows for model switching without modifying the codebase.
 
-**Model Choice:** Because of Google Gemini 2.5 Flash's superior PDF processing capabilities and quick response times, I used it. Having a model that can read and comprehend documents efficiently was essential for the application's main use case, as resume analysis is a fundamental feature.
+**Model Choice:** I used `mistralai/devstral-small-2505:free` via OpenRouter for its solid reasoning on the free tier, fast responses, and compatibility with the required plugins (file parsing and optional web search). Although smaller than flagship models, it reliably powers USC Q&A grounded by resume context at low cost. I chose this model because it is lightweight, low-latency, and has solid reasoning capabilities; while not at the level of OpenAI and anthropic models, it is sufficient for the complexity of our use case.
 
 **File Upload Approach:** Since the OpenRouter.ai api allows direct injection of the base64 file to its api payload, I used Base64 encoding for PDF uploads rather than cloud storage or intricate file handling systems. By doing this, extra service dependencies are avoided and the infrastructure is kept simple.
 
