@@ -119,7 +119,6 @@ Popular Majors: Business Administration, Computer Science, Film and Media Studie
 Location Benefits: Located in Los Angeles with connections to entertainment, technology, and business industries. Sunny climate, cultural diversity, and numerous internship opportunities.
 
 ${profile?.resume ? 'The student has uploaded a resume that you can reference for personalized advice.' : ''}
-${profile?.linkedinUrl ? `Student LinkedIn profile: ${profile.linkedinUrl}` : ''}
 ${profile?.interests ? `Student interests: ${profile.interests}` : ''}
 ${profile?.currentEducation ? `Current education level: ${profile.currentEducation}` : ''}
 ${useWebSearch ? '\n\nWeb search is enabled - you can search for the most current USC information, deadlines, program updates, and recent news for your responses.' : ''}
@@ -132,7 +131,6 @@ function buildUserMessage(question: string, profile: StudentProfile): string {
   return `Student Question: ${question}
 
 ${profile?.resume ? 'The student has uploaded a resume for context.' : 'No resume uploaded.'}
-${profile?.linkedinUrl ? `Student LinkedIn profile: ${profile.linkedinUrl}` : 'No LinkedIn profile provided.'}
 ${profile?.interests ? `Student interests: ${profile.interests}` : ''}
 ${profile?.currentEducation ? `Current education level: ${profile.currentEducation}` : ''}
 

@@ -118,17 +118,6 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
             </div>
 
             <div className="col-12">
-              <label className="form-label">LinkedIn URL</label>
-              <input
-                type="url"
-                className="form-control"
-                placeholder="https://linkedin.com/in/your-profile"
-                value={linkedinUrl}
-                onChange={(e) => setLinkedinUrl(e.target.value)}
-              />
-            </div>
-
-            <div className="col-12">
               <label className="form-label">Education Level</label>
               <select
                 className="form-select"
