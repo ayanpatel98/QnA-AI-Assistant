@@ -2,7 +2,6 @@
 
 export interface StudentProfile {
   id?: string;
-  linkedinUrl?: string;
   resume?: {
     filename: string;
     originalName?: string;

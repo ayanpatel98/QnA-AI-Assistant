@@ -9,7 +9,6 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [linkedinUrl, setLinkedinUrl] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   const [currentEducation, setCurrentEducation] = useState<EducationLevel | ''>('');
@@ -63,7 +62,6 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
       }
 
       const requestData = {
-        linkedinUrl: linkedinUrl || null,
         currentEducation: currentEducation || null,
         interests: interests || null,
         resume: resumeData
@@ -83,7 +81,6 @@ const ProfileUpload: React.FC<ProfileUploadProps> = ({ userProfile, setUserProfi
         setSuccess('Profile uploaded successfully!');
         
         // Clear form
-        setLinkedinUrl('');
         setResumeFile(null);
         setCurrentEducation('');
         setInterests('');

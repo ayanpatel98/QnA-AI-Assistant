@@ -21,7 +21,7 @@ const OPENROUTER_API_URL: string = process.env.OPENROUTER_API_URL || 'https://op
 export function setupStudentRoutes(app: express.Application) {
   app.post('/api/upload-profile', (req, res) => {
     try {
-      const { linkedinUrl, currentEducation, interests, resume } = req.body;
+      const { currentEducation, interests, resume } = req.body;
       
       // Validate resume if provided
       if (resume) {
@@ -43,7 +43,6 @@ export function setupStudentRoutes(app: express.Application) {
       
       const profileData = {
         id: Date.now().toString(),
-        linkedinUrl: linkedinUrl || null,
         resume: resume || null,
         currentEducation: currentEducation || null,
         interests: interests || null,
